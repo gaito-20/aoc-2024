@@ -13,6 +13,10 @@ const TEST: &str = "\
 xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
 ";
 
+const TEST2: &str = "\
+xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
+";
+
 fn main() -> Result<()> {
     start_day(DAY);
 
@@ -43,17 +47,32 @@ fn main() -> Result<()> {
     //endregion
 
     //region Part 2
-    // println!("\n=== Part 2 ===");
-    //
-    // fn part2<R: BufRead>(reader: R) -> Result<usize> {
-    //     Ok(0)
-    // }
-    //
-    // assert_eq!(0, part2(BufReader::new(TEST.as_bytes()))?);
-    //
-    // let input_file = BufReader::new(File::open(INPUT_FILE)?);
-    // let result = time_snippet!(part2(input_file)?);
-    // println!("Result = {}", result);
+    println!("\n=== Part 2 ===");
+    
+    fn part2<R: BufRead>(reader: R) -> Result<usize> {
+        let input: String = reader.lines().flatten().collect();
+        let re = Regex::new(r"don't\(\).*?do\(\)")?;
+        let cleared_text = re.replace_all(&*input, "");
+        
+        let re = Regex::new(r"mul\(([\d]{1,3}),([\d]{1,3})\)")?;
+        let mul_params = re.captures_iter(&*cleared_text).map(|caps| {
+            let (_, [x,y]) = caps.extract();
+            (x,y)
+        });
+
+        let mut res = 0;
+        for (x, y) in mul_params {
+            res += x.parse::<i32>()? * y.parse::<i32>()?;
+        }
+
+        Ok(res as usize)
+    }
+    
+    assert_eq!(48, part2(BufReader::new(TEST2.as_bytes()))?);
+    
+    let input_file = BufReader::new(File::open(INPUT_FILE)?);
+    let result = time_snippet!(part2(input_file)?);
+    println!("Result = {}", result);
     //endregion
 
     Ok(())
