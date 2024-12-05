@@ -1,8 +1,9 @@
+use std::cmp::Ordering;
 use adv_code_2024::*;
 use anyhow::*;
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
-use itertools::{enumerate};
+use itertools::{enumerate, Itertools};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -144,17 +145,53 @@ fn main() -> Result<()> {
     //endregion
 
     //region Part 2
-    // println!("\n=== Part 2 ===");
-    //
-    // fn part2<R: BufRead>(reader: R) -> Result<usize> {
-    //     Ok(0)
-    // }
-    //
-    // assert_eq!(0, part2(BufReader::new(TEST.as_bytes()))?);
-    //
-    // let input_file = BufReader::new(File::open(INPUT_FILE)?);
-    // let result = time_snippet!(part2(input_file)?);
-    // println!("Result = {}", result);
+    println!("\n=== Part 2 ===");
+    
+    fn fix_invalid_update(update: &Vec<i32>, rules: &HashMap<i32, Vec<i32>>) -> Vec<i32>{
+        let mut valid_update = update.to_vec();
+        valid_update.sort_by(|a,b| {
+            match rules.get(b) {
+                None => { Ordering::Equal }
+                Some(rule) => {
+                    if rule.iter().contains(a) {
+                        Ordering::Less
+                    } else {
+                        Ordering::Greater
+                    }
+                }
+            }
+        });
+        valid_update
+    }
+    
+    fn part2<R: BufRead>(reader: R) -> Result<usize> {
+        let (rules_map, updates_list) = read_input(reader)?;
+        let mut invalid_updates: Vec<Vec<i32>> = Vec::new();
+
+        for update in updates_list {
+            if !check_rules(&rules_map, &update) {
+                invalid_updates.push(update);
+            }
+        }
+
+        let mut valid_updates: Vec<Vec<i32>> = Vec::new();
+        for update in invalid_updates {
+            valid_updates.push(fix_invalid_update(&update, &rules_map));
+        }
+        
+        let mut median_sum = 0;
+        for update in valid_updates {
+            median_sum += update.get(update.len() / 2).unwrap();
+        }
+
+        Ok(median_sum as usize)
+    }
+    
+    assert_eq!(123, part2(BufReader::new(TEST.as_bytes()))?);
+    
+    let input_file = BufReader::new(File::open(INPUT_FILE)?);
+    let result = time_snippet!(part2(input_file)?);
+    println!("Result = {}", result);
     //endregion
 
     Ok(())
