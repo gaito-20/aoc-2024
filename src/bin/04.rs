@@ -21,6 +21,19 @@ MAMMMXMMMM
 MXMXAXMASX
 ";
 
+const TEST2: &str = "\
+.M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........
+";
+
 fn main() -> Result<()> {
     start_day(DAY);
 
@@ -42,7 +55,7 @@ fn main() -> Result<()> {
     fn check_word(word: &str, grid: &Vec<Vec<char>>, row_pos: usize, col_pos: usize, d_row: i32, d_col: i32) -> bool {
         let mut row_ind = row_pos as i32;
         let mut col_ind = col_pos as i32;
-        
+
         for c in word.chars() {
             if row_ind < 0 || row_ind >= grid.len() as i32  || col_ind < 0 || col_ind >= grid[row_ind as usize].len() as i32 {
                 return false;
@@ -97,17 +110,71 @@ fn main() -> Result<()> {
     //endregion
 
     //region Part 2
-    // println!("\n=== Part 2 ===");
-    //
-    // fn part2<R: BufRead>(reader: R) -> Result<usize> {
-    //     Ok(0)
-    // }
-    //
-    // assert_eq!(0, part2(BufReader::new(TEST.as_bytes()))?);
-    //
-    // let input_file = BufReader::new(File::open(INPUT_FILE)?);
-    // let result = time_snippet!(part2(input_file)?);
-    // println!("Result = {}", result);
+    println!("\n=== Part 2 ===");
+
+    fn check_pattern(grid: &Vec<Vec<char>>, row_pos: usize, col_pos: usize) -> bool {
+        /*
+            M.S     M.M     S.M     S.S
+            .A.     .A.     .A.     .A.
+            M.S     S.S     S.M     M.M
+         */
+
+        if row_pos < 1 || row_pos >= grid.len() - 1  || col_pos < 1 || col_pos >= grid[row_pos].len() -1 {
+            return false;
+        }
+
+        let lu = grid[row_pos-1][col_pos-1];
+        let ru = grid[row_pos+1][col_pos-1];
+        let ld = grid[row_pos-1][col_pos+1];
+        let rd = grid[row_pos+1][col_pos+1];
+
+        match lu {
+            'M'|'S' => {
+                match rd {
+                    'M'|'S' => { if lu == rd { return false; } }
+                    _ => { return false; }
+                }
+            }
+            _ => { return false; }
+        }
+
+        match ru {
+            'M'|'S' => {
+                match ld {
+                    'M'|'S' => { if ru == ld { return false; } }
+                    _ => { return false; }
+                }
+            }
+            _ => { return false; }
+        }
+
+        true
+    }
+
+    fn part2<R: BufRead>(reader: R) -> Result<usize> {
+        let grid = create_grid(reader);
+        let mut words_found = 0;
+
+        for row_ind in 0..grid.len() {
+            for col_ind in 0..grid[row_ind].len() {
+
+                if grid[row_ind][col_ind] == 'A' {
+                    if check_pattern(&grid,row_ind,col_ind) {
+                        words_found += 1;
+                    }
+                }
+
+            }
+        }
+
+        Ok(words_found)
+    }
+
+    assert_eq!(9, part2(BufReader::new(TEST2.as_bytes()))?);
+
+    let input_file = BufReader::new(File::open(INPUT_FILE)?);
+    let result = time_snippet!(part2(input_file)?);
+    println!("Result = {}", result);
     //endregion
 
     Ok(())
