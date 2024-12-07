@@ -181,7 +181,7 @@ fn main() -> Result<()> {
         }
         println!("=========================");
     }
-    
+
     fn search(direction: Direction, map: &Vec<Vec<char>>, remember_direction: &mut Vec<Vec<Option<Direction>>>, pos_row: usize, pos_col: usize) -> bool {
         let mut d_row: i32 = 0;
         let mut d_col: i32 = 0;
@@ -192,7 +192,7 @@ fn main() -> Result<()> {
             Direction::Left => { d_col = -1; }
             Direction::Right => { d_col = 1; }
         }
-        
+
         let (next_pos_row, next_pos_col) = (pos_row as i32 + d_row, pos_col as i32 + d_col);
 
         let row_size = map.len();
@@ -201,7 +201,7 @@ fn main() -> Result<()> {
         if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_col < 0 || next_pos_col > (col_size-1) as i32 {
             return false;
         }
-        
+
         let next_char = map.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
         let next_direction = remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
 
@@ -215,7 +215,7 @@ fn main() -> Result<()> {
                 }
             }
         }
-        
+
         match next_char {
             '#' => { return false; }
             _ => {  }
@@ -223,7 +223,7 @@ fn main() -> Result<()> {
 
         search(direction, map, remember_direction, next_pos_row as usize, next_pos_col as usize)
     }
-    
+
     /**
     * Looks if a path to a loop is possible from the current position, returns true if so.
     */
@@ -387,10 +387,8 @@ fn main() -> Result<()> {
 
         let mut counter: usize = 0;
         
-        let (initial_pos_row, initial_pos_col, _) = get_pos(&map).unwrap();
+        let (initial_pos_row, initial_pos_col, _) = get_pos(&map)?;
         while !next_move2(initial_pos_row, initial_pos_col, &mut map, &mut counter, &mut remember_direction) { }
-
-        print_directions(&remember_direction);
 
         Ok(counter)
     }
