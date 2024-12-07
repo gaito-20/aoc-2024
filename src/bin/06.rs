@@ -162,6 +162,26 @@ fn main() -> Result<()> {
     //region Part 2
     println!("\n=== Part 2 ===");
 
+    fn print_directions(remember_direction: &Vec<Vec<Option<Direction>>>) {
+        for row in remember_direction {
+            for c in row {
+                match c {
+                    None => { print!("."); }
+                    Some(direction) => {
+                        match direction {
+                            Direction::Up => { print!("^"); }
+                            Direction::Down => { print!("v"); }
+                            Direction::Left => { print!("<"); }
+                            Direction::Right => { print!(">"); }
+                        }
+                    }
+                }
+            }
+            println!();
+        }
+        println!("=========================");
+    }
+    
     fn search(direction: Direction, map: &Vec<Vec<char>>, remember_direction: &mut Vec<Vec<Option<Direction>>>, pos_row: usize, pos_col: usize) -> bool {
         let mut d_row: i32 = 0;
         let mut d_col: i32 = 0;
@@ -225,7 +245,7 @@ fn main() -> Result<()> {
     }
 
 
-    fn next_move2(map: &mut Vec<Vec<char>>, counter: &mut usize, remember_direction: &mut Vec<Vec<Option<Direction>>>) -> bool {
+    fn next_move2(initial_pos_row: usize, initial_pos_col: usize, map: &mut Vec<Vec<char>>, counter: &mut usize, remember_direction: &mut Vec<Vec<Option<Direction>>>) -> bool {
         let (pos_row, pos_col, direction) = get_pos(&map).unwrap();
         *remember_direction.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap() = match direction {
             Direction::Up => { Some(Direction::Up) }
@@ -304,32 +324,42 @@ fn main() -> Result<()> {
                     Direction::Right => { '>' }
                 };
 
-                match remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap() {
-                    None => {}
-                    Some(next_direction) => {
-                        match next_direction {
-                            Direction::Up => {
-                                match direction {
-                                    Direction::Left => { *counter += 1; }
-                                    _ => {}
+                if !(next_pos_row as usize == initial_pos_row && next_pos_col as usize == initial_pos_col) {
+                    match remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap() {
+                        None => {}
+                        Some(next_direction) => {
+                            match next_direction {
+                                Direction::Up => {
+                                    match direction {
+                                        Direction::Left => {
+                                            *counter += 1;
+                                        }
+                                        _ => {}
+                                    }
                                 }
-                            }
-                            Direction::Down => {
-                                match direction {
-                                    Direction::Right => { *counter += 1; }
-                                    _ => {}
+                                Direction::Down => {
+                                    match direction {
+                                        Direction::Right => {
+                                            *counter += 1;
+                                        }
+                                        _ => {}
+                                    }
                                 }
-                            }
-                            Direction::Left => {
-                                match direction {
-                                    Direction::Down => { *counter += 1; }
-                                    _ => {}
+                                Direction::Left => {
+                                    match direction {
+                                        Direction::Down => {
+                                            *counter += 1;
+                                        }
+                                        _ => {}
+                                    }
                                 }
-                            }
-                            Direction::Right => {
-                                match direction {
-                                    Direction::Up => { *counter += 1; }
-                                    _ => {}
+                                Direction::Right => {
+                                    match direction {
+                                        Direction::Up => {
+                                            *counter += 1;
+                                        }
+                                        _ => {}
+                                    }
                                 }
                             }
                         }
@@ -356,7 +386,12 @@ fn main() -> Result<()> {
         }
 
         let mut counter: usize = 0;
-        while !next_move2(&mut map, &mut counter, &mut remember_direction) { }
+        
+        let (initial_pos_row, initial_pos_col, _) = get_pos(&map).unwrap();
+        while !next_move2(initial_pos_row, initial_pos_col, &mut map, &mut counter, &mut remember_direction) { }
+
+        print_directions(&remember_direction);
+
         Ok(counter)
     }
 
