@@ -178,7 +178,7 @@ fn main() -> Result<()> {
         let row_size = map.len();
         let col_size = map.get(0).unwrap().len();
 
-        if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_row < 0 || next_pos_col > (col_size-1) as i32 {
+        if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_col < 0 || next_pos_col > (col_size-1) as i32 {
             return false;
         }
         
@@ -200,8 +200,8 @@ fn main() -> Result<()> {
             '#' => { return false; }
             _ => {  }
         }
-        
-        search(direction, map, remember_direction, pos_row, pos_col)
+
+        search(direction, map, remember_direction, next_pos_row as usize, next_pos_col as usize)
     }
     
     /**
@@ -210,16 +210,16 @@ fn main() -> Result<()> {
     fn search_for_continuing_trail(map: &mut Vec<Vec<char>>, remember_direction: &mut Vec<Vec<Option<Direction>>>, pos_row: usize, pos_col: usize, cur_direction: Direction) -> bool {
         match cur_direction {
             Direction::Up => {
-                search(Direction::Down, map, remember_direction, pos_row, pos_col) || search(Direction::Left, map, remember_direction, pos_row, pos_col) || search(Direction::Right, map, remember_direction, pos_row, pos_col)
+                search(Direction::Right, map, remember_direction, pos_row, pos_col)
             }
             Direction::Down => {
-                search(Direction::Up, map, remember_direction, pos_row, pos_col) || search(Direction::Left, map, remember_direction, pos_row, pos_col) || search(Direction::Right, map, remember_direction, pos_row, pos_col)
+                search(Direction::Left, map, remember_direction, pos_row, pos_col)
             }
             Direction::Left => {
-                search(Direction::Down, map, remember_direction, pos_row, pos_col) || search(Direction::Up, map, remember_direction, pos_row, pos_col) || search(Direction::Right, map, remember_direction, pos_row, pos_col)
+                search(Direction::Up, map, remember_direction, pos_row, pos_col)
             }
             Direction::Right => {
-                search(Direction::Down, map, remember_direction, pos_row, pos_col) || search(Direction::Left, map, remember_direction, pos_row, pos_col) || search(Direction::Up, map, remember_direction, pos_row, pos_col)
+                search(Direction::Down, map, remember_direction, pos_row, pos_col)
             }
         }
     }
@@ -281,7 +281,7 @@ fn main() -> Result<()> {
                     }
                 }
             }
-            '.' | 'X' => {
+            '.' => {
                 *curr_char = 'X';
                 set_next_char = match direction {
                     Direction::Up => { '^' }
@@ -290,41 +290,49 @@ fn main() -> Result<()> {
                     Direction::Right => { '>' }
                 };
 
-                if next_char == 'X' {
-                    match remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap() {
-                        None => {}
-                        Some(next_direction) => {
-                            match next_direction {
-                                Direction::Up => {
-                                    match direction {
-                                        Direction::Left => { *counter += 1; }
-                                        _ => {}
-                                    }
+                if search_for_continuing_trail(map, remember_direction, pos_row, pos_col, direction) {
+                    *counter += 1;
+                }
+            }
+            
+            'X' => {
+                *curr_char = 'X';
+                set_next_char = match direction {
+                    Direction::Up => { '^' }
+                    Direction::Down => { 'v' }
+                    Direction::Left => { '<' }
+                    Direction::Right => { '>' }
+                };
+
+                match remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap() {
+                    None => {}
+                    Some(next_direction) => {
+                        match next_direction {
+                            Direction::Up => {
+                                match direction {
+                                    Direction::Left => { *counter += 1; }
+                                    _ => {}
                                 }
-                                Direction::Down => {
-                                    match direction {
-                                        Direction::Right => { *counter += 1; }
-                                        _ => {}
-                                    }
+                            }
+                            Direction::Down => {
+                                match direction {
+                                    Direction::Right => { *counter += 1; }
+                                    _ => {}
                                 }
-                                Direction::Left => {
-                                    match direction {
-                                        Direction::Down => { *counter += 1; }
-                                        _ => {}
-                                    }
+                            }
+                            Direction::Left => {
+                                match direction {
+                                    Direction::Down => { *counter += 1; }
+                                    _ => {}
                                 }
-                                Direction::Right => {
-                                    match direction {
-                                        Direction::Up => { *counter += 1; }
-                                        _ => {}
-                                    }
+                            }
+                            Direction::Right => {
+                                match direction {
+                                    Direction::Up => { *counter += 1; }
+                                    _ => {}
                                 }
                             }
                         }
-                    }
-                } else {
-                    if search_for_continuing_trail(map, remember_direction, pos_row, pos_col, direction) {
-                        *counter += 1;
                     }
                 }
             }
