@@ -1,10 +1,10 @@
+use adv_code_2024::*;
 use anyhow::*;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
 use regex::Regex;
-use adv_code_2024::*;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 const DAY: &str = "03";
 const INPUT_FILE: &str = concatcp!("input/", DAY, ".txt");
@@ -27,8 +27,8 @@ fn main() -> Result<()> {
         let input: String = reader.lines().flatten().collect();
         let re = Regex::new(r"mul\(([\d]{1,3}),([\d]{1,3})\)")?;
         let mul_params = re.captures_iter(&*input).map(|caps| {
-            let (_, [x,y]) = caps.extract();
-            (x,y)
+            let (_, [x, y]) = caps.extract();
+            (x, y)
         });
 
         let mut res = 0;
@@ -48,16 +48,16 @@ fn main() -> Result<()> {
 
     //region Part 2
     println!("\n=== Part 2 ===");
-    
+
     fn part2<R: BufRead>(reader: R) -> Result<usize> {
         let input: String = reader.lines().flatten().collect();
         let re = Regex::new(r"don't\(\).*?do\(\)")?;
         let cleared_text = re.replace_all(&*input, "");
-        
+
         let re = Regex::new(r"mul\(([\d]{1,3}),([\d]{1,3})\)")?;
         let mul_params = re.captures_iter(&*cleared_text).map(|caps| {
-            let (_, [x,y]) = caps.extract();
-            (x,y)
+            let (_, [x, y]) = caps.extract();
+            (x, y)
         });
 
         let mut res = 0;
@@ -67,9 +67,9 @@ fn main() -> Result<()> {
 
         Ok(res as usize)
     }
-    
+
     assert_eq!(48, part2(BufReader::new(TEST2.as_bytes()))?);
-    
+
     let input_file = BufReader::new(File::open(INPUT_FILE)?);
     let result = time_snippet!(part2(input_file)?);
     println!("Result = {}", result);

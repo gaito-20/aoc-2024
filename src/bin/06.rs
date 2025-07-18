@@ -1,11 +1,11 @@
-use std::result::Result::Ok;
+use adv_code_2024::*;
 use anyhow::*;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
-use itertools::{enumerate};
-use adv_code_2024::*;
+use itertools::enumerate;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::result::Result::Ok;
 
 const DAY: &str = "06";
 const INPUT_FILE: &str = concatcp!("input/", DAY, ".txt");
@@ -46,17 +46,25 @@ fn main() -> Result<()> {
         Up,
         Down,
         Left,
-        Right
+        Right,
     }
 
     fn get_pos(map: &Vec<Vec<char>>) -> Result<(usize, usize, Direction)> {
         for (row_ind, row) in enumerate(map) {
             for (c_ind, &c) in enumerate(row) {
                 match c {
-                    '^' => { return Ok((row_ind, c_ind, Direction::Up)); }
-                    '>' => { return Ok((row_ind, c_ind, Direction::Right)); }
-                    'v' => { return Ok((row_ind, c_ind, Direction::Down)); }
-                    '<' => { return Ok((row_ind, c_ind, Direction::Left)); }
+                    '^' => {
+                        return Ok((row_ind, c_ind, Direction::Up));
+                    }
+                    '>' => {
+                        return Ok((row_ind, c_ind, Direction::Right));
+                    }
+                    'v' => {
+                        return Ok((row_ind, c_ind, Direction::Down));
+                    }
+                    '<' => {
+                        return Ok((row_ind, c_ind, Direction::Left));
+                    }
                     _ => {}
                 }
             }
@@ -65,8 +73,8 @@ fn main() -> Result<()> {
     }
 
     /**
-    * Processes the next move. Returns true if guard left the map
-    */
+     * Processes the next move. Returns true if guard left the map
+     */
     fn next_move(map: &mut Vec<Vec<char>>) -> bool {
         let (pos_row, pos_col, direction) = get_pos(&map).unwrap();
 
@@ -74,10 +82,18 @@ fn main() -> Result<()> {
         let mut d_col: i32 = 0;
 
         match direction {
-            Direction::Up => { d_row = -1; }
-            Direction::Down => { d_row = 1; }
-            Direction::Left => { d_col = -1; }
-            Direction::Right => { d_col = 1; }
+            Direction::Up => {
+                d_row = -1;
+            }
+            Direction::Down => {
+                d_row = 1;
+            }
+            Direction::Left => {
+                d_col = -1;
+            }
+            Direction::Right => {
+                d_col = 1;
+            }
         }
 
         let (next_pos_row, next_pos_col) = (pos_row as i32 + d_row, pos_col as i32 + d_col);
@@ -85,12 +101,20 @@ fn main() -> Result<()> {
         let row_size = map.len();
         let col_size = map.get(0).unwrap().len();
 
-        if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_col < 0 || next_pos_col > (col_size-1) as i32 {
+        if next_pos_row < 0
+            || next_pos_row > (row_size - 1) as i32
+            || next_pos_col < 0
+            || next_pos_col > (col_size - 1) as i32
+        {
             *map.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap() = 'X';
             return true;
         }
 
-        let next_char = *map.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
+        let next_char = *map
+            .get(next_pos_row as usize)
+            .unwrap()
+            .get(next_pos_col as usize)
+            .unwrap();
         let curr_char = map.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap();
 
         let mut set_next_char = '.';
@@ -120,19 +144,21 @@ fn main() -> Result<()> {
             '.' | 'X' => {
                 *curr_char = 'X';
                 set_next_char = match direction {
-                    Direction::Up => { '^' }
-                    Direction::Down => { 'v' }
-                    Direction::Left => { '<' }
-                    Direction::Right => { '>' }
+                    Direction::Up => '^',
+                    Direction::Down => 'v',
+                    Direction::Left => '<',
+                    Direction::Right => '>',
                 }
             }
             _ => {}
         }
 
-        *map.get_mut(next_pos_row as usize).unwrap().get_mut(next_pos_col as usize).unwrap() = set_next_char;
+        *map.get_mut(next_pos_row as usize)
+            .unwrap()
+            .get_mut(next_pos_col as usize)
+            .unwrap() = set_next_char;
         false
     }
-
 
     fn count_visits(map: &Vec<Vec<char>>) -> usize {
         let mut counter = 0;
@@ -148,7 +174,7 @@ fn main() -> Result<()> {
 
     fn part1<R: BufRead>(reader: R) -> Result<usize> {
         let mut map = create_map(reader);
-        while !next_move(&mut map) { }
+        while !next_move(&mut map) {}
         Ok(count_visits(&map))
     }
 
@@ -166,15 +192,23 @@ fn main() -> Result<()> {
         for row in remember_direction {
             for c in row {
                 match c {
-                    None => { print!("."); }
-                    Some(direction) => {
-                        match direction {
-                            Direction::Up => { print!("^"); }
-                            Direction::Down => { print!("v"); }
-                            Direction::Left => { print!("<"); }
-                            Direction::Right => { print!(">"); }
-                        }
+                    None => {
+                        print!(".");
                     }
+                    Some(direction) => match direction {
+                        Direction::Up => {
+                            print!("^");
+                        }
+                        Direction::Down => {
+                            print!("v");
+                        }
+                        Direction::Left => {
+                            print!("<");
+                        }
+                        Direction::Right => {
+                            print!(">");
+                        }
+                    },
                 }
             }
             println!();
@@ -182,15 +216,29 @@ fn main() -> Result<()> {
         println!("=========================");
     }
 
-    fn search(direction: Direction, map: &Vec<Vec<char>>, remember_direction: &mut Vec<Vec<Option<Direction>>>, pos_row: usize, pos_col: usize) -> bool {
+    fn search(
+        direction: Direction,
+        map: &Vec<Vec<char>>,
+        remember_direction: &mut Vec<Vec<Option<Direction>>>,
+        pos_row: usize,
+        pos_col: usize,
+    ) -> bool {
         let mut d_row: i32 = 0;
         let mut d_col: i32 = 0;
 
         match direction {
-            Direction::Up => { d_row = -1; }
-            Direction::Down => { d_row = 1; }
-            Direction::Left => { d_col = -1; }
-            Direction::Right => { d_col = 1; }
+            Direction::Up => {
+                d_row = -1;
+            }
+            Direction::Down => {
+                d_row = 1;
+            }
+            Direction::Left => {
+                d_col = -1;
+            }
+            Direction::Right => {
+                d_col = 1;
+            }
         }
 
         let (next_pos_row, next_pos_col) = (pos_row as i32 + d_row, pos_col as i32 + d_col);
@@ -198,12 +246,24 @@ fn main() -> Result<()> {
         let row_size = map.len();
         let col_size = map.get(0).unwrap().len();
 
-        if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_col < 0 || next_pos_col > (col_size-1) as i32 {
+        if next_pos_row < 0
+            || next_pos_row > (row_size - 1) as i32
+            || next_pos_col < 0
+            || next_pos_col > (col_size - 1) as i32
+        {
             return false;
         }
 
-        let next_char = map.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
-        let next_direction = remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
+        let next_char = map
+            .get(next_pos_row as usize)
+            .unwrap()
+            .get(next_pos_col as usize)
+            .unwrap();
+        let next_direction = remember_direction
+            .get(next_pos_row as usize)
+            .unwrap()
+            .get(next_pos_col as usize)
+            .unwrap();
 
         match next_direction {
             None => {}
@@ -217,51 +277,74 @@ fn main() -> Result<()> {
         }
 
         match next_char {
-            '#' => { return false; }
-            _ => {  }
+            '#' => {
+                return false;
+            }
+            _ => {}
         }
 
-        search(direction, map, remember_direction, next_pos_row as usize, next_pos_col as usize)
+        search(
+            direction,
+            map,
+            remember_direction,
+            next_pos_row as usize,
+            next_pos_col as usize,
+        )
     }
 
     /**
-    * Looks if a path to a loop is possible from the current position, returns true if so.
-    */
-    fn search_for_continuing_trail(map: &mut Vec<Vec<char>>, remember_direction: &mut Vec<Vec<Option<Direction>>>, pos_row: usize, pos_col: usize, cur_direction: Direction) -> bool {
+     * Looks if a path to a loop is possible from the current position, returns true if so.
+     */
+    fn search_for_continuing_trail(
+        map: &mut Vec<Vec<char>>,
+        remember_direction: &mut Vec<Vec<Option<Direction>>>,
+        pos_row: usize,
+        pos_col: usize,
+        cur_direction: Direction,
+    ) -> bool {
         match cur_direction {
-            Direction::Up => {
-                search(Direction::Right, map, remember_direction, pos_row, pos_col)
-            }
-            Direction::Down => {
-                search(Direction::Left, map, remember_direction, pos_row, pos_col)
-            }
-            Direction::Left => {
-                search(Direction::Up, map, remember_direction, pos_row, pos_col)
-            }
-            Direction::Right => {
-                search(Direction::Down, map, remember_direction, pos_row, pos_col)
-            }
+            Direction::Up => search(Direction::Right, map, remember_direction, pos_row, pos_col),
+            Direction::Down => search(Direction::Left, map, remember_direction, pos_row, pos_col),
+            Direction::Left => search(Direction::Up, map, remember_direction, pos_row, pos_col),
+            Direction::Right => search(Direction::Down, map, remember_direction, pos_row, pos_col),
         }
     }
 
-
-    fn next_move2(initial_pos_row: usize, initial_pos_col: usize, map: &mut Vec<Vec<char>>, counter: &mut usize, remember_direction: &mut Vec<Vec<Option<Direction>>>) -> bool {
+    fn next_move2(
+        initial_pos_row: usize,
+        initial_pos_col: usize,
+        map: &mut Vec<Vec<char>>,
+        counter: &mut usize,
+        remember_direction: &mut Vec<Vec<Option<Direction>>>,
+    ) -> bool {
         let (pos_row, pos_col, direction) = get_pos(&map).unwrap();
-        *remember_direction.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap() = match direction {
-            Direction::Up => { Some(Direction::Up) }
-            Direction::Down => { Some(Direction::Down) }
-            Direction::Left => { Some(Direction::Left) }
-            Direction::Right => { Some(Direction::Right) }
+        *remember_direction
+            .get_mut(pos_row)
+            .unwrap()
+            .get_mut(pos_col)
+            .unwrap() = match direction {
+            Direction::Up => Some(Direction::Up),
+            Direction::Down => Some(Direction::Down),
+            Direction::Left => Some(Direction::Left),
+            Direction::Right => Some(Direction::Right),
         };
 
         let mut d_row: i32 = 0;
         let mut d_col: i32 = 0;
 
         match direction {
-            Direction::Up => { d_row = -1; }
-            Direction::Down => { d_row = 1; }
-            Direction::Left => { d_col = -1; }
-            Direction::Right => { d_col = 1; }
+            Direction::Up => {
+                d_row = -1;
+            }
+            Direction::Down => {
+                d_row = 1;
+            }
+            Direction::Left => {
+                d_col = -1;
+            }
+            Direction::Right => {
+                d_col = 1;
+            }
         }
 
         let (next_pos_row, next_pos_col) = (pos_row as i32 + d_row, pos_col as i32 + d_col);
@@ -269,12 +352,20 @@ fn main() -> Result<()> {
         let row_size = map.len();
         let col_size = map.get(0).unwrap().len();
 
-        if next_pos_row < 0 || next_pos_row > (row_size-1) as i32 || next_pos_col < 0 || next_pos_col > (col_size-1) as i32 {
+        if next_pos_row < 0
+            || next_pos_row > (row_size - 1) as i32
+            || next_pos_col < 0
+            || next_pos_col > (col_size - 1) as i32
+        {
             *map.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap() = 'X';
             return true;
         }
 
-        let next_char = *map.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap();
+        let next_char = *map
+            .get(next_pos_row as usize)
+            .unwrap()
+            .get(next_pos_col as usize)
+            .unwrap();
         let curr_char = map.get_mut(pos_row).unwrap().get_mut(pos_col).unwrap();
 
         let mut set_next_char = '.';
@@ -304,72 +395,73 @@ fn main() -> Result<()> {
             '.' => {
                 *curr_char = 'X';
                 set_next_char = match direction {
-                    Direction::Up => { '^' }
-                    Direction::Down => { 'v' }
-                    Direction::Left => { '<' }
-                    Direction::Right => { '>' }
+                    Direction::Up => '^',
+                    Direction::Down => 'v',
+                    Direction::Left => '<',
+                    Direction::Right => '>',
                 };
 
-                if search_for_continuing_trail(map, remember_direction, pos_row, pos_col, direction) {
+                if search_for_continuing_trail(map, remember_direction, pos_row, pos_col, direction)
+                {
                     *counter += 1;
                 }
             }
-            
+
             'X' => {
                 *curr_char = 'X';
                 set_next_char = match direction {
-                    Direction::Up => { '^' }
-                    Direction::Down => { 'v' }
-                    Direction::Left => { '<' }
-                    Direction::Right => { '>' }
+                    Direction::Up => '^',
+                    Direction::Down => 'v',
+                    Direction::Left => '<',
+                    Direction::Right => '>',
                 };
 
-                if !(next_pos_row as usize == initial_pos_row && next_pos_col as usize == initial_pos_col) {
-                    match remember_direction.get(next_pos_row as usize).unwrap().get(next_pos_col as usize).unwrap() {
+                if !(next_pos_row as usize == initial_pos_row
+                    && next_pos_col as usize == initial_pos_col)
+                {
+                    match remember_direction
+                        .get(next_pos_row as usize)
+                        .unwrap()
+                        .get(next_pos_col as usize)
+                        .unwrap()
+                    {
                         None => {}
-                        Some(next_direction) => {
-                            match next_direction {
-                                Direction::Up => {
-                                    match direction {
-                                        Direction::Left => {
-                                            *counter += 1;
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                                Direction::Down => {
-                                    match direction {
-                                        Direction::Right => {
-                                            *counter += 1;
-                                        }
-                                        _ => {}
-                                    }
-                                }
+                        Some(next_direction) => match next_direction {
+                            Direction::Up => match direction {
                                 Direction::Left => {
-                                    match direction {
-                                        Direction::Down => {
-                                            *counter += 1;
-                                        }
-                                        _ => {}
-                                    }
+                                    *counter += 1;
                                 }
+                                _ => {}
+                            },
+                            Direction::Down => match direction {
                                 Direction::Right => {
-                                    match direction {
-                                        Direction::Up => {
-                                            *counter += 1;
-                                        }
-                                        _ => {}
-                                    }
+                                    *counter += 1;
                                 }
-                            }
-                        }
+                                _ => {}
+                            },
+                            Direction::Left => match direction {
+                                Direction::Down => {
+                                    *counter += 1;
+                                }
+                                _ => {}
+                            },
+                            Direction::Right => match direction {
+                                Direction::Up => {
+                                    *counter += 1;
+                                }
+                                _ => {}
+                            },
+                        },
                     }
                 }
             }
             _ => {}
         }
 
-        *map.get_mut(next_pos_row as usize).unwrap().get_mut(next_pos_col as usize).unwrap() = set_next_char;
+        *map.get_mut(next_pos_row as usize)
+            .unwrap()
+            .get_mut(next_pos_col as usize)
+            .unwrap() = set_next_char;
         false
     }
 
@@ -386,9 +478,15 @@ fn main() -> Result<()> {
         }
 
         let mut counter: usize = 0;
-        
+
         let (initial_pos_row, initial_pos_col, _) = get_pos(&map)?;
-        while !next_move2(initial_pos_row, initial_pos_col, &mut map, &mut counter, &mut remember_direction) { }
+        while !next_move2(
+            initial_pos_row,
+            initial_pos_col,
+            &mut map,
+            &mut counter,
+            &mut remember_direction,
+        ) {}
 
         Ok(counter)
     }

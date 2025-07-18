@@ -1,10 +1,10 @@
+use adv_code_2024::*;
 use anyhow::*;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
 use itertools::Itertools;
-use adv_code_2024::*;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 const DAY: &str = "17";
 const INPUT_FILE: &str = concatcp!("input/", DAY, ".txt");
@@ -23,7 +23,7 @@ trait Instruction {
 
 struct ADV {
     numerator: u32,
-    denominator: u32
+    denominator: u32,
 }
 
 impl Instruction for ADV {
@@ -35,7 +35,7 @@ impl Instruction for ADV {
 
 struct BXL {
     left_operand: u32,
-    right_operand: u32
+    right_operand: u32,
 }
 
 impl Instruction for BXL {
@@ -46,7 +46,7 @@ impl Instruction for BXL {
 }
 
 struct BST {
-    operand: u32
+    operand: u32,
 }
 
 impl Instruction for BST {
@@ -57,7 +57,7 @@ impl Instruction for BST {
 }
 
 struct JNZ {
-    operand: u32
+    operand: u32,
 }
 
 impl Instruction for JNZ {
@@ -80,7 +80,7 @@ impl Instruction for BXC {
 }
 
 struct OUT {
-    operand: u32
+    operand: u32,
 }
 
 impl Instruction for OUT {
@@ -92,7 +92,7 @@ impl Instruction for OUT {
 
 struct BDV {
     numerator: u32,
-    denominator: u32
+    denominator: u32,
 }
 
 impl Instruction for BDV {
@@ -104,7 +104,7 @@ impl Instruction for BDV {
 
 struct CDV {
     numerator: u32,
-    denominator: u32
+    denominator: u32,
 }
 
 impl Instruction for CDV {
@@ -126,27 +126,58 @@ struct Computer {
 impl Computer {
     fn from_input<R: BufRead>(reader: R) -> Self {
         let lines: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
-        let reg_a = lines.iter().find(|x| { x.contains("Register A") }).unwrap().strip_prefix("Register A: ").unwrap().parse::<u32>().unwrap();
-        let reg_b = lines.iter().find(|x| { x.contains("Register B") }).unwrap().strip_prefix("Register B: ").unwrap().parse::<u32>().unwrap();
-        let reg_c = lines.iter().find(|x| { x.contains("Register C") }).unwrap().strip_prefix("Register C: ").unwrap().parse::<u32>().unwrap();
+        let reg_a = lines
+            .iter()
+            .find(|x| x.contains("Register A"))
+            .unwrap()
+            .strip_prefix("Register A: ")
+            .unwrap()
+            .parse::<u32>()
+            .unwrap();
+        let reg_b = lines
+            .iter()
+            .find(|x| x.contains("Register B"))
+            .unwrap()
+            .strip_prefix("Register B: ")
+            .unwrap()
+            .parse::<u32>()
+            .unwrap();
+        let reg_c = lines
+            .iter()
+            .find(|x| x.contains("Register C"))
+            .unwrap()
+            .strip_prefix("Register C: ")
+            .unwrap()
+            .parse::<u32>()
+            .unwrap();
 
-        let program = lines.iter()
-            .find(|x| { x.contains("Program") }).unwrap()
-            .strip_prefix("Program: ").unwrap()
+        let program = lines
+            .iter()
+            .find(|x| x.contains("Program"))
+            .unwrap()
+            .strip_prefix("Program: ")
+            .unwrap()
             .split(",")
             .map(|l| l.parse::<u8>().unwrap())
             .collect::<Vec<u8>>();
 
-        Self { reg_a, reg_b, reg_c, program, instruction_pointer: 0 , output: vec![] }
+        Self {
+            reg_a,
+            reg_b,
+            reg_c,
+            program,
+            instruction_pointer: 0,
+            output: vec![],
+        }
     }
 
     fn get_value_for_combo_operand(&self, combo_operand: u8) -> Result<u32> {
         match combo_operand {
-            0_u8..=3_u8 => { Ok(combo_operand as u32) }
-            4 => { Ok(self.reg_a) }
-            5 => { Ok(self.reg_b) }
-            6 => { Ok(self.reg_c) }
-            _ => { Err(Error::msg("Invalid combo operand")) }
+            0_u8..=3_u8 => Ok(combo_operand as u32),
+            4 => Ok(self.reg_a),
+            5 => Ok(self.reg_b),
+            6 => Ok(self.reg_c),
+            _ => Err(Error::msg("Invalid combo operand")),
         }
     }
 
@@ -156,15 +187,33 @@ impl Computer {
         let combo_operand = self.get_value_for_combo_operand(literal_operand).unwrap();
 
         match opcode {
-            0 => Ok(Box::new(ADV { numerator: self.reg_a, denominator: 2_i32.pow(combo_operand) as u32 })),
-            1 => Ok(Box::new(BXL { left_operand: self.reg_b, right_operand: literal_operand as u32 })),
-            2 => Ok(Box::new(BST { operand: combo_operand })),
-            3 => Ok(Box::new(JNZ { operand: literal_operand as u32 })),
-            4 => Ok(Box::new(BXC { })),
-            5 => Ok(Box::new(OUT { operand: combo_operand })),
-            6 => Ok(Box::new(BDV { numerator: self.reg_a, denominator: 2_i32.pow(combo_operand) as u32 })),
-            7 => Ok(Box::new(CDV { numerator: self.reg_a, denominator: 2_i32.pow(combo_operand) as u32 })),
-            _ => Err(Error::msg("Invalid opcode"))
+            0 => Ok(Box::new(ADV {
+                numerator: self.reg_a,
+                denominator: 2_i32.pow(combo_operand) as u32,
+            })),
+            1 => Ok(Box::new(BXL {
+                left_operand: self.reg_b,
+                right_operand: literal_operand as u32,
+            })),
+            2 => Ok(Box::new(BST {
+                operand: combo_operand,
+            })),
+            3 => Ok(Box::new(JNZ {
+                operand: literal_operand as u32,
+            })),
+            4 => Ok(Box::new(BXC {})),
+            5 => Ok(Box::new(OUT {
+                operand: combo_operand,
+            })),
+            6 => Ok(Box::new(BDV {
+                numerator: self.reg_a,
+                denominator: 2_i32.pow(combo_operand) as u32,
+            })),
+            7 => Ok(Box::new(CDV {
+                numerator: self.reg_a,
+                denominator: 2_i32.pow(combo_operand) as u32,
+            })),
+            _ => Err(Error::msg("Invalid opcode")),
         }
     }
 
@@ -175,7 +224,6 @@ impl Computer {
         self.output.iter().join(",")
     }
 }
-
 
 fn main() -> Result<()> {
     start_day(DAY);
@@ -189,7 +237,10 @@ fn main() -> Result<()> {
         Ok(output)
     }
 
-    assert_eq!("4,6,3,5,6,3,5,2,1,0", part1(BufReader::new(TEST.as_bytes()))?);
+    assert_eq!(
+        "4,6,3,5,6,3,5,2,1,0",
+        part1(BufReader::new(TEST.as_bytes()))?
+    );
 
     let input_file = BufReader::new(File::open(INPUT_FILE)?);
     let result = time_snippet!(part1(input_file)?);

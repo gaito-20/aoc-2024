@@ -1,9 +1,9 @@
+use adv_code_2024::*;
 use anyhow::*;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
-use adv_code_2024::*;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 const DAY: &str = "07";
 const INPUT_FILE: &str = concatcp!("input/", DAY, ".txt");
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
     #[derive(Clone, Hash, Eq, PartialEq, Debug)]
     enum Operation {
         Multiply,
-        Add
+        Add,
     }
 
     fn read_operations<R: BufRead>(reader: R) -> Result<Vec<(u64, Vec<u64>)>> {
@@ -54,11 +54,10 @@ fn main() -> Result<()> {
 
     fn perform_operation(operation: Operation, left_operand: u64, right_operand: u64) -> u64 {
         match operation {
-            Operation::Multiply => { left_operand * right_operand }
-            Operation::Add => { left_operand + right_operand }
+            Operation::Multiply => left_operand * right_operand,
+            Operation::Add => left_operand + right_operand,
         }
     }
-
 
     fn create_permutations(len: usize) -> Vec<Vec<Operation>> {
         if len == 0 {
@@ -81,18 +80,18 @@ fn main() -> Result<()> {
     fn check_operation(exp_result: u64, operands: &Vec<u64>) -> bool {
         let mut operands = operands.clone();
         operands.reverse();
-        
+
         let permutations = create_permutations(operands.len() - 1);
         for operations in permutations {
             let mut current_operands = operands.clone();
-            
+
             let mut res = current_operands.pop().unwrap();
-            
+
             for operation in operations {
                 let next_operand = current_operands.pop().unwrap();
                 res = perform_operation(operation, res, next_operand);
             }
-            
+
             if exp_result == res {
                 return true;
             }
@@ -102,14 +101,14 @@ fn main() -> Result<()> {
 
     fn part1<R: BufRead>(reader: R) -> Result<usize> {
         let operations = read_operations(reader)?;
-        let count = operations.iter()
-            .filter(|(result, operands)| { check_operation(*result, operands) })
-            .map(|(result, _operands)| { result })
+        let count = operations
+            .iter()
+            .filter(|(result, operands)| check_operation(*result, operands))
+            .map(|(result, _operands)| result)
             .sum::<u64>();
-        
+
         Ok(count as usize)
     }
-
 
     assert_eq!(3749, part1(BufReader::new(TEST.as_bytes()))?);
 
@@ -125,17 +124,20 @@ fn main() -> Result<()> {
     enum Operation2 {
         Multiply,
         Add,
-        Concatenate
+        Concatenate,
     }
 
     fn perform_operation2(operation: Operation2, left_operand: u64, right_operand: u64) -> u64 {
         match operation {
-            Operation2::Multiply => { left_operand * right_operand }
-            Operation2::Add => { left_operand + right_operand }
-            Operation2::Concatenate => { format!("{}{}", left_operand.to_string(), right_operand.to_string()).parse::<u64>().unwrap() }
+            Operation2::Multiply => left_operand * right_operand,
+            Operation2::Add => left_operand + right_operand,
+            Operation2::Concatenate => {
+                format!("{}{}", left_operand.to_string(), right_operand.to_string())
+                    .parse::<u64>()
+                    .unwrap()
+            }
         }
     }
-
 
     fn create_permutations2(len: usize) -> Vec<Vec<Operation2>> {
         if len == 0 {
@@ -151,7 +153,7 @@ fn main() -> Result<()> {
             let mut add_perm = perm.clone();
             add_perm.push(Operation2::Add);
             result.push(add_perm);
-            
+
             let mut concat_perm = perm.clone();
             concat_perm.push(Operation2::Concatenate);
             result.push(concat_perm);
@@ -180,19 +182,20 @@ fn main() -> Result<()> {
         }
         false
     }
-    
+
     fn part2<R: BufRead>(reader: R) -> Result<usize> {
         let operations = read_operations(reader)?;
-        let count = operations.iter()
-            .filter(|(result, operands)| { check_operation2(*result, operands) })
-            .map(|(result, _operands)| { result })
+        let count = operations
+            .iter()
+            .filter(|(result, operands)| check_operation2(*result, operands))
+            .map(|(result, _operands)| result)
             .sum::<u64>();
 
         Ok(count as usize)
     }
-    
+
     assert_eq!(11387, part2(BufReader::new(TEST.as_bytes()))?);
-    
+
     let input_file = BufReader::new(File::open(INPUT_FILE)?);
     let result = time_snippet!(part2(input_file)?);
     println!("Result = {}", result);

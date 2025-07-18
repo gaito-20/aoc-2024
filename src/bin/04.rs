@@ -52,12 +52,23 @@ fn main() -> Result<()> {
         grid
     }
 
-    fn check_word(word: &str, grid: &Vec<Vec<char>>, row_pos: usize, col_pos: usize, d_row: i32, d_col: i32) -> bool {
+    fn check_word(
+        word: &str,
+        grid: &Vec<Vec<char>>,
+        row_pos: usize,
+        col_pos: usize,
+        d_row: i32,
+        d_col: i32,
+    ) -> bool {
         let mut row_ind = row_pos as i32;
         let mut col_ind = col_pos as i32;
 
         for c in word.chars() {
-            if row_ind < 0 || row_ind >= grid.len() as i32  || col_ind < 0 || col_ind >= grid[row_ind as usize].len() as i32 {
+            if row_ind < 0
+                || row_ind >= grid.len() as i32
+                || col_ind < 0
+                || col_ind >= grid[row_ind as usize].len() as i32
+            {
                 return false;
             }
 
@@ -78,19 +89,18 @@ fn main() -> Result<()> {
         let mut words_found = 0;
 
         let directions: Vec<(i32, i32)> = vec![
-            (1, 0),     // right
-            (-1, 0),    // left
-            (0, 1),     // down
-            (0, -1),    // up
-            (1, -1),    // right up
-            (1, 1),     // right down
-            (-1, -1),   // left up
-            (-1, 1)     // left down
+            (1, 0),   // right
+            (-1, 0),  // left
+            (0, 1),   // down
+            (0, -1),  // up
+            (1, -1),  // right up
+            (1, 1),   // right down
+            (-1, -1), // left up
+            (-1, 1),  // left down
         ];
 
         for row_ind in 0..grid.len() {
             for col_ind in 0..grid[row_ind].len() {
-
                 for (d_row, d_col) in &directions {
                     if check_word(find_str, &grid, row_ind, col_ind, *d_row, *d_col) {
                         words_found += 1;
@@ -114,38 +124,54 @@ fn main() -> Result<()> {
 
     fn check_pattern(grid: &Vec<Vec<char>>, row_pos: usize, col_pos: usize) -> bool {
         /*
-            M.S     M.M     S.M     S.S
-            .A.     .A.     .A.     .A.
-            M.S     S.S     S.M     M.M
-         */
+           M.S     M.M     S.M     S.S
+           .A.     .A.     .A.     .A.
+           M.S     S.S     S.M     M.M
+        */
 
-        if row_pos < 1 || row_pos >= grid.len() - 1  || col_pos < 1 || col_pos >= grid[row_pos].len() -1 {
+        if row_pos < 1
+            || row_pos >= grid.len() - 1
+            || col_pos < 1
+            || col_pos >= grid[row_pos].len() - 1
+        {
             return false;
         }
 
-        let lu = grid[row_pos-1][col_pos-1];
-        let ru = grid[row_pos+1][col_pos-1];
-        let ld = grid[row_pos-1][col_pos+1];
-        let rd = grid[row_pos+1][col_pos+1];
+        let lu = grid[row_pos - 1][col_pos - 1];
+        let ru = grid[row_pos + 1][col_pos - 1];
+        let ld = grid[row_pos - 1][col_pos + 1];
+        let rd = grid[row_pos + 1][col_pos + 1];
 
         match lu {
-            'M'|'S' => {
-                match rd {
-                    'M'|'S' => { if lu == rd { return false; } }
-                    _ => { return false; }
+            'M' | 'S' => match rd {
+                'M' | 'S' => {
+                    if lu == rd {
+                        return false;
+                    }
                 }
+                _ => {
+                    return false;
+                }
+            },
+            _ => {
+                return false;
             }
-            _ => { return false; }
         }
 
         match ru {
-            'M'|'S' => {
-                match ld {
-                    'M'|'S' => { if ru == ld { return false; } }
-                    _ => { return false; }
+            'M' | 'S' => match ld {
+                'M' | 'S' => {
+                    if ru == ld {
+                        return false;
+                    }
                 }
+                _ => {
+                    return false;
+                }
+            },
+            _ => {
+                return false;
             }
-            _ => { return false; }
         }
 
         true
@@ -157,13 +183,11 @@ fn main() -> Result<()> {
 
         for row_ind in 0..grid.len() {
             for col_ind in 0..grid[row_ind].len() {
-
                 if grid[row_ind][col_ind] == 'A' {
-                    if check_pattern(&grid,row_ind,col_ind) {
+                    if check_pattern(&grid, row_ind, col_ind) {
                         words_found += 1;
                     }
                 }
-
             }
         }
 

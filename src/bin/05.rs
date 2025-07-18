@@ -1,9 +1,9 @@
-use std::cmp::Ordering;
 use adv_code_2024::*;
 use anyhow::*;
 use code_timing_macros::time_snippet;
 use const_format::concatcp;
 use itertools::{enumerate, Itertools};
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -57,7 +57,9 @@ fn main() -> Result<()> {
 
             let entry = rules.get(&page);
             match entry {
-                None => { rules.insert(page, vec![page_rule]); }
+                None => {
+                    rules.insert(page, vec![page_rule]);
+                }
                 Some(elem) => {
                     let mut new_rules = elem.to_vec();
                     new_rules.push(page_rule);
@@ -71,13 +73,12 @@ fn main() -> Result<()> {
     fn create_updates(input: &Vec<String>) -> Vec<Vec<i32>> {
         let mut updates_list: Vec<Vec<i32>> = Vec::new();
         for line in input {
-
             let mut updates: Vec<i32> = Vec::new();
             let updates_str: Vec<&str> = line.split(",").collect();
 
             for update_str in updates_str {
                 match update_str.parse::<i32>() {
-                    Result::Ok(update) => {updates.push(update)}
+                    Result::Ok(update) => updates.push(update),
                     Err(_) => {}
                 }
             }
@@ -93,8 +94,12 @@ fn main() -> Result<()> {
         for line in reader.lines() {
             let line = line?;
             match line {
-                l if l.contains("|") => { rules_lines.push(l); }
-                l if l.contains(",") => { updates_lines.push(l); }
+                l if l.contains("|") => {
+                    rules_lines.push(l);
+                }
+                l if l.contains(",") => {
+                    updates_lines.push(l);
+                }
                 _ => {}
             }
         }
@@ -107,12 +112,16 @@ fn main() -> Result<()> {
 
     fn check_rules(rules: &HashMap<i32, Vec<i32>>, update: &Vec<i32>) -> bool {
         for (ind, page) in enumerate(update) {
-            let pages_before= &update[0..ind];
+            let pages_before = &update[0..ind];
 
             for earlier_page in pages_before {
                 match rules.get(page) {
                     None => {}
-                    Some(rule) => { if rule.contains(earlier_page) { return false; } }
+                    Some(rule) => {
+                        if rule.contains(earlier_page) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
@@ -133,7 +142,7 @@ fn main() -> Result<()> {
         for update in valid_updates {
             median_sum += update.get(update.len() / 2).unwrap();
         }
-        
+
         Ok(median_sum as usize)
     }
 
@@ -146,24 +155,22 @@ fn main() -> Result<()> {
 
     //region Part 2
     println!("\n=== Part 2 ===");
-    
-    fn fix_invalid_update(update: &Vec<i32>, rules: &HashMap<i32, Vec<i32>>) -> Vec<i32>{
+
+    fn fix_invalid_update(update: &Vec<i32>, rules: &HashMap<i32, Vec<i32>>) -> Vec<i32> {
         let mut valid_update = update.to_vec();
-        valid_update.sort_by(|a,b| {
-            match rules.get(b) {
-                None => { Ordering::Equal }
-                Some(rule) => {
-                    if rule.iter().contains(a) {
-                        Ordering::Less
-                    } else {
-                        Ordering::Greater
-                    }
+        valid_update.sort_by(|a, b| match rules.get(b) {
+            None => Ordering::Equal,
+            Some(rule) => {
+                if rule.iter().contains(a) {
+                    Ordering::Less
+                } else {
+                    Ordering::Greater
                 }
             }
         });
         valid_update
     }
-    
+
     fn part2<R: BufRead>(reader: R) -> Result<usize> {
         let (rules_map, updates_list) = read_input(reader)?;
         let mut invalid_updates: Vec<Vec<i32>> = Vec::new();
@@ -178,7 +185,7 @@ fn main() -> Result<()> {
         for update in invalid_updates {
             valid_updates.push(fix_invalid_update(&update, &rules_map));
         }
-        
+
         let mut median_sum = 0;
         for update in valid_updates {
             median_sum += update.get(update.len() / 2).unwrap();
@@ -186,9 +193,9 @@ fn main() -> Result<()> {
 
         Ok(median_sum as usize)
     }
-    
+
     assert_eq!(123, part2(BufReader::new(TEST.as_bytes()))?);
-    
+
     let input_file = BufReader::new(File::open(INPUT_FILE)?);
     let result = time_snippet!(part2(input_file)?);
     println!("Result = {}", result);
