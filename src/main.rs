@@ -1,10 +1,10 @@
-use adv_code_2024::AdventOfCode;
+use adv_code_2024::{AdventOfCode, Day01, Day02};
 
-use adv_code_2024::Day01;
 
 fn main() {
     let mut aoc = AdventOfCode::new();
     aoc.add_solution(01, Box::new(Day01 {}));
+    aoc.add_solution(02, Box::new(Day02 {}));
 
     println!("=== Advent of Code 2024 ===");
     for day in aoc.days {

@@ -1,5 +1,6 @@
 pub mod days;
 pub use days::day01::Day01;
+pub use days::day02::Day02;
 
 pub struct AdventOfCode {
     pub days: Vec<Day>,

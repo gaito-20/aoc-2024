@@ -64,10 +64,7 @@ fn pop_minimum(list: &mut Vec<i32>) -> i32 {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_challenge1() {
-        let day: Day01 = Day01 {};
-        let input = "\
+    const INPUT: &'static str = "\
 3   4
 4   3
 2   5
@@ -75,20 +72,16 @@ mod tests {
 3   9
 3   3
 ";
-        assert_eq!(day.challenge1(input), "11");
+
+    #[test]
+    fn test_challenge1() {
+        let day: Day01 = Day01 {};
+        assert_eq!(day.challenge1(INPUT), "11");
     }
 
     #[test]
     fn test_challenge2() {
         let day = Day01 {};
-        let input = "\
-3   4
-4   3
-2   5
-1   3
-3   9
-3   3
-";
-        assert_eq!(day.challenge2(input), "31");
+        assert_eq!(day.challenge2(INPUT), "31");
     }
 }
